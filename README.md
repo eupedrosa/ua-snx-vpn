@@ -14,7 +14,7 @@ Other distributions were not tested.
 
 You will need to have [docker][2] installed.
 The linux client, `snx`, requires 32bit libraries to be installed.
-Using docker [docker][2] we can maintain this dependencies separated from your 64bits host system.
+Using [docker][2] we can maintain this dependencies separated from your 64bits host system.
 
 Please follow [docker's install instructions][3] to have `docker` in your system.
 Make sure you can use `docker` as non-root.
