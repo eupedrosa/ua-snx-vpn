@@ -25,7 +25,7 @@ docker build "https://github.com/eupedrosa/ua-snx-vpn.git#:docker" -t $IMAGE_NAM
 
 echo ""
 echo "Copying ua-vpn script to /usr/local/bin"
-curl -Lks https://raw.githubusercontent.com/eupedrosa/insta.dot/master/ua-vpn > /tmp/ua-vpn
+curl -Lks https://raw.githubusercontent.com/eupedrosa/ua-snx-vpn/master/ua-vpn > /tmp/ua-vpn
 chmod +x /tmp/ua-vpn
 sudo mv /tmp/ua-vpn /usr/local/bin
 
