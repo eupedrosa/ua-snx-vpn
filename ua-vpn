@@ -1,0 +1,99 @@
+#!/bin/bash
+
+# Exit on error
+set -e
+
+function _ {
+[ -x "$(command -v $1)" ] || {
+        echo "Error: '$1' is not installed." >&2
+        exit 1
+    }
+}
+
+# You must have these binaries in your system.
+_ docker
+_ curl
+_ systemd-resolve # likely to be installed
+# ---------------
+
+IMAGE_NAME="ua-snx-vpn"
+
+function update {
+
+echo "Building image.."
+docker build "https://github.com/eupedrosa/ua-snx-vpn.git#:docker" -t $IMAGE_NAME
+
+echo ""
+echo "Copying ua-vpn script to /usr/local/bin"
+curl -Lks https://raw.githubusercontent.com/eupedrosa/insta.dot/master/ua-vpn > /tmp/ua-vpn
+chmod +x /tmp/ua-vpn
+sudo mv /tmp/ua-vpn /usr/local/bin
+
+} # end install
+
+
+function up {
+
+container=$(docker ps -f 'name=ua-vpn' -f 'status=running' -q)
+test ! -z "$container" && {
+    echo "VPN container already running.."
+    return
+}
+
+read -p 'UA username: ' VPN_USER
+read -sp 'Password: '   VPN_PWD
+echo ""
+
+docker run --rm --name ua-vpn --network host --cap-add=ALL -v /lib/modules:/lib/modules \
+    -e VPN_USER=$VPN_USER -e VPN_PWD=$VPN_PWD -td $IMAGE_NAME > /dev/null
+
+# Give it time to create the connection
+sleep 2
+
+# Make sure it is running
+container=$(docker ps -f 'name=ua-vpn' -f 'status=running' -q)
+test -z "$container" && {
+    echo "VPN connection failed.."
+    return
+}
+
+echo "VPN connected.."
+echo "Setting DNS server, this requires authentication.."
+
+# DNS servers 193.136.172.{20,21}
+# DNS suffix ua.pt
+sudo systemd-resolve -i tunsnx --set-dns=193.136.172.20 --set-dns=193.136.172.21 --set-domain=ua.pt
+
+} # end up
+
+function down {
+
+container=$(docker ps -f 'name=ua-vpn' -f 'status=running' -q)
+test -z "$container" && {
+    echo "VPN container is not running.."
+    return
+}
+
+docker stop ua-vpn
+
+} # end down
+
+function usage {
+
+echo "usage: `basename $0` [command]"
+echo ""
+echo "Commands"
+echo "  up        Create the VPN connection."
+echo "  down      Terminate ther VPN connection."
+echo "  update    Update the UA's VPN docker image and this script."
+
+} # end status
+
+[ $# -eq 0 ] && { usage; exit; }
+
+case $1 in
+    up) up ;;
+    down) down ;;
+    update) update ;;
+esac
+
