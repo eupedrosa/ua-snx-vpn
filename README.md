@@ -1,6 +1,6 @@
 
-Universidade de Aveiro - VPN Linux client
-=========================================
+Universidade de Aveiro - VPN Linux manager
+==========================================
 A quick and easy way to manage your UA's VPN connection.
 
 ## Overview
@@ -13,8 +13,8 @@ Other distributions were not tested.
 ## Requirements
 
 You will need to have [docker][2] installed.
-The linux client, `snx`, requires 32bit libraries to be installed.
-Using [docker][2] we can maintain this dependencies separated from your 64bits host system.
+The linux client, `snx`, requires 32 bit libraries to be installed.
+Using [docker][2] we can maintain these dependencies separated from your 64 bits host system.
 
 Please follow [docker's install instructions][3] to have `docker` in your system.
 Make sure you can use `docker` as non-root.
