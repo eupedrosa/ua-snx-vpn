@@ -24,12 +24,36 @@ echo "Building image.."
 docker build "https://github.com/eupedrosa/ua-snx-vpn.git#:docker" -t $IMAGE_NAME
 
 echo ""
-echo "Copying ua-vpn script to /usr/local/bin"
+echo "Copying ua-vpn script to /usr/local/bin [with sudo].."
 curl -Lks https://raw.githubusercontent.com/eupedrosa/ua-snx-vpn/master/ua-vpn > /tmp/ua-vpn
 chmod +x /tmp/ua-vpn
 sudo mv /tmp/ua-vpn /usr/local/bin
 
 } # end install
+
+function status {
+container=$(docker ps -f 'name=ua-vpn' -f 'status=running' -q)
+test -z "$container" && {
+    echo "Disconnected"
+    return
+}
+
+echo "VPN Container is running.."
+test ! -d /sys/class/net/tunsnx && {
+    echo "The VPN tunnel does not exist, something is wrong.."
+    exit 1
+}
+
+rx_bytes=`cat /sys/class/net/tunsnx/statistics/rx_bytes`
+rx_dropped=`cat /sys/class/net/tunsnx/statistics/rx_dropped`
+
+tx_bytes=`cat /sys/class/net/tunsnx/statistics/tx_bytes`
+tx_dropped=`cat /sys/class/net/tunsnx/statistics/tx_dropped`
+
+echo -e "TX Bytes: $tx_bytes \tDropped: $tx_dropped"
+echo -e "RX Bytes: $rx_bytes \tDropped: $rx_dropped"
+
+}
 
 
 function up {
@@ -58,11 +82,13 @@ test -z "$container" && {
 }
 
 echo "VPN connected.."
-echo "Setting DNS server, this requires authentication.."
+echo "Setting DNS server [with sudo].."
 
 # DNS servers 193.136.172.{20,21}
 # DNS suffix ua.pt
 sudo systemd-resolve -i tunsnx --set-dns=193.136.172.20 --set-dns=193.136.172.21 --set-domain=ua.pt
+
+echo "Done"
 
 } # end up
 
@@ -74,7 +100,10 @@ test -z "$container" && {
     return
 }
 
-docker stop ua-vpn
+echo "Terminating VPN connection.."
+docker exec ua-vpn snx -d > /dev/null
+docker stop -t 1 ua-vpn > /dev/null
+echo "Done"
 
 } # end down
 
@@ -86,6 +115,7 @@ echo "Commands"
 echo "  up        Create the VPN connection."
 echo "  down      Terminate ther VPN connection."
 echo "  update    Update the UA's VPN docker image and this script."
+echo "  status    Show connection status."
 
 } # end status
 
@@ -95,5 +125,7 @@ case $1 in
     up) up ;;
     down) down ;;
     update) update ;;
+    status) status ;;
+    *) usage ;;
 esac
 
