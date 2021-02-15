@@ -29,11 +29,28 @@ sudo apt install curl
 
 ## Quick Install
 
+Clone this repository
 ```bash
-curl -Lks https://raw.githubusercontent.com/eupedrosa/ua-snx-vpn/master/ua-vpn | bash -s update
+git clone https://github.com/eupedrosa/ua-snx-vpn.git
+```
+
+Download [snx_install_linux31.sh][4] and put it under the `docker` directory.
+
+Build the docker image
+```bash
+cd ua-snx-vpn/docker
+docker build -t ua-snx-vpn
+```
+
+Now copy the script to you $PATH, e.g.
+```bash
+cd ..
+sudo cp ua-vpn /usr/local/bin/ua-vpn
+sudo chmod +x /usr/local/bin/ua-vpn
 ```
 
 
 [1]: https://www.ua.pt/pt/stic/teletrabalho_vpn
 [2]: https://www.docker.com/
 [3]: https://docs.docker.com/engine/install/ubuntu/
+[4]: https://supportcenter.checkpoint.com/supportcenter/portal/user/anon/page/default.psml/media-type/html?action=portlets.DCFileAction&eventSubmit_doGetdcdetails&fileid=22824

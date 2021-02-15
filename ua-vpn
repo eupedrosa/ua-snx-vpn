@@ -20,9 +20,6 @@ IMAGE_NAME="ua-snx-vpn"
 
 function update {
 
-echo "Building image.."
-docker build "https://github.com/eupedrosa/ua-snx-vpn.git#:docker" -t $IMAGE_NAME
-
 echo ""
 echo "Copying ua-vpn script to /usr/local/bin [with sudo].."
 curl -Lks https://raw.githubusercontent.com/eupedrosa/ua-snx-vpn/master/ua-vpn > /tmp/ua-vpn
